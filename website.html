@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Sales Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: #3498db;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: #3498db;
+        }
+        
+        /* Dashboard Controls */
+        .dashboard-controls {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        select, button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .date-range {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .date-range input {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .card .change {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .positive {
+            color: #2ecc71;
+        }
+        
+        .negative {
+            color: #e74c3c;
+        }
+        
+        /* Charts Section */
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .chart-container h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Data Tables */
+        .data-section {
+            margin-bottom: 40px;
+        }
+        
+        .data-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #3498db;
+            font-weight: 500;
+            color: #3498db;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .footer-links a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">Sales<span>Insights</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="#">Reports</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Dashboard Controls -->
+        <div class="dashboard-controls">
+            <div class="filter-group">
+                <label for="time-period">Time Period:</label>
+                <select id="time-period">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="90" selected>Last 90 Days</option>
+                    <option value="365">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            <div class="date-range" id="date-range">
+                <input type="date" id="start-date" value="2023-01-01">
+                <span>to</span>
+                <input type="date" id="end-date" value="2023-03-31">
+            </div>
+            <div class="filter-group">
+                <label for="region">Region:</label>
+                <select id="region">
+                    <option value="all">All Regions</option>
+                    <option value="north_america">North America</option>
+                    <option value="europe">Europe</option>
+                    <option value="asia">Asia</option>
+                    <option value="south_america">South America</option>
+                </select>
+            </div>
+            <button id="apply-filters">Apply Filters</button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card">
+                <h3>Total Sales</h3>
+                <div class="value" id="total-sales">$248,570</div>
+                <div class="change positive">↑ <span id="sales-growth">12.5</span>% from last period</div>
+            </div>
+            <div class="card">
+                <h3>Orders</h3>
+                <div class="value" id="total-orders">1,842</div>
+                <div class="change positive">↑ <span id="orders-growth">8.3</span>% from last period</div>
+            </div>
+            <div class="card">
+                <h3>Average Order Value</h3>
+                <div class="value" id="avg-order">$135</div>
+                <div class="change positive">↑ <span id="aov-growth">3.9</span>% from last period</div>
+            </div>
+            <div class="card">
+                <h3>Conversion Rate</h3>
+                <div class="value" id="conversion-rate">3.2%</div>
+                <div class="change negative">↓ <span id="conversion-change">0.4</span>% from last period</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts">
+            <div class="chart-container">
+                <h2>Monthly Sales Trend</h2>
+                <div class="chart-wrapper">
+                    <canvas id="monthly-sales-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h2>Sales by Country</h2>
+                <div class="chart-wrapper">
+                    <canvas id="country-sales-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Charts -->
+        <div class="charts">
+            <div class="chart-container">
+                <h2>City-wise Sales Distribution</h2>
+                <div class="chart-wrapper">
+                    <canvas id="city-sales-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h2>Yearly Sales Comparison</h2>
+                <div class="chart-wrapper">
+                    <canvas id="yearly-comparison-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales by Country Table -->
+        <div class="data-section">
+            <h2>Sales Data</h2>
+            <div class="tabs">
+                <div class="tab active" data-tab="country">By Country</div>
+                <div class="tab" data-tab="city">By City</div>
+                <div class="tab" data-tab="product">By Product</div>
+                <div class="tab" data-tab="year">By Year</div>
+            </div>
+            <div id="country-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Country</th>
+                            <th>Orders</th>
+                            <th>Sales</th>
+                            <th>Avg. Order</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="country-data">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="city-table" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>City</th>
+                            <th>Orders</th>
+                            <th>Sales</th>
+                            <th>Avg. Order</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="city-data">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="product-table" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Orders</th>
+                            <th>Sales</th>
+                            <th>Avg. Price</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-data">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="year-table" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Orders</th>
+                            <th>Sales</th>
+                            <th>Avg. Order</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="year-data">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div>© 2023 Sales Insights Dashboard</div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample data for the dashboard
+        const salesData = {
+            monthly: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: '2022',
+                        data: [65000, 69000, 72000, 68000, 71000, 75000, 78000, 82000, 79000, 85000, 90000, 95000],
+                        borderColor: 'rgba(52, 152, 219, 0.8)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: '2023',
+                        data: [72150, 81230, 95190, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        borderColor: 'rgba(46, 204, 113, 0.8)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            country: {
+                labels: ['USA', 'UK', 'Germany', 'Canada', 'Australia', 'Japan', 'France'],
+                data: [112450, 48720, 35120, 19850, 15430, 11230, 10560],
+                colors: [
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(155, 89, 182, 0.7)',
+                    'rgba(41, 128, 185, 0.7)',
+                    'rgba(39, 174, 96, 0.7)',
+                    'rgba(243, 156, 18, 0.7)',
+                    'rgba(231, 76, 60, 0.7)',
+                    'rgba(189, 195, 199, 0.7)'
+                ]
+            },
+            city: {
+                labels: ['New York', 'London', 'Berlin', 'Toronto', 'Sydney', 'Tokyo', 'Paris'],
+                data: [78450, 38210, 25120, 12850, 10430, 9230, 8560],
+                colors: [
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(155, 89, 182, 0.7)',
+                    'rgba(41, 128, 185, 0.7)',
+                    'rgba(39, 174, 96, 0.7)',
+                    'rgba(243, 156, 18, 0.7)',
+                    'rgba(231, 76, 60, 0.7)',
+                    'rgba(189, 195, 199, 0.7)'
+                ]
+            },
+            yearly: {
+                labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                data: [420000, 480000, 510000, 650000, 890000, 250000],
+                colors: [
+                    'rgba(52, 152, 219, 0.7)',
+                    'rgba(155, 89, 182, 0.7)',
+                    'rgba(41, 128, 185, 0.7)',
+                    'rgba(39, 174, 96, 0.7)',
+                    'rgba(243, 156, 18, 0.7)',
+                    'rgba(231, 76, 60, 0.7)'
+                ]
+            },
+            tables: {
+                country: [
+                    { country: 'United States', orders: 842, sales: 112450, avg: 133.55, growth: 15.2, trend: 'positive' },
+                    { country: 'United Kingdom', orders: 392, sales: 48720, avg: 124.29, growth: 8.7, trend: 'positive' },
+                    { country: 'Germany', orders: 287, sales: 35120, avg: 122.37, growth: 5.3, trend: 'positive' },
+                    { country: 'Canada', orders: 156, sales: 19850, avg: 127.24, growth: 12.1, trend: 'positive' },
+                    { country: 'Australia', orders: 123, sales: 15430, avg: 125.45, growth: -2.4, trend: 'negative' },
+                    { country: 'Japan', orders: 98, sales: 11230, avg: 114.59, growth: 6.8, trend: 'positive' },
+                    { country: 'France', orders: 87, sales: 10560, avg: 121.38, growth: 4.2, trend: 'positive' }
+                ],
+                city: [
+                    { city: 'New York', orders: 512, sales: 78450, avg: 153.22, growth: 18.2, trend: 'positive' },
+                    { city: 'London', orders: 245, sales: 38210, avg: 155.96, growth: 9.7, trend: 'positive' },
+                    { city: 'Berlin', orders: 178, sales: 25120, avg: 141.12, growth: 6.3, trend: 'positive' },
+                    { city: 'Toronto', orders: 98, sales: 12850, avg: 131.12, growth: 13.1, trend: 'positive' },
+                    { city: 'Sydney', orders: 85, sales: 10430, avg: 122.71, growth: -1.4, trend: 'negative' },
+                    { city: 'Tokyo', orders: 72, sales: 9230, avg: 128.19, growth: 7.8, trend: 'positive' },
+                    { city: 'Paris', orders: 68, sales: 8560, avg: 125.88, growth: 5.2, trend: 'positive' }
+                ],
+                product: [
+                    { product: 'Laptop Pro', orders: 342, sales: 68400, avg: 200.00, growth: 22.1, trend: 'positive' },
+                    { product: 'Smartphone X', orders: 512, sales: 51200, avg: 100.00, growth: 15.7, trend: 'positive' },
+                    { product: 'Wireless Headphones', orders: 287, sales: 43050, avg: 150.00, growth: 8.3, trend: 'positive' },
+                    { product: 'Smart Watch', orders: 198, sales: 39600, avg: 200.00, growth: 12.6, trend: 'positive' },
+                    { product: 'Tablet Lite', orders: 156, sales: 23400, avg: 150.00, growth: -3.4, trend: 'negative' },
+                    { product: 'Bluetooth Speaker', orders: 123, sales: 18450, avg: 150.00, growth: 6.8, trend: 'positive' },
+                    { product: 'Gaming Console', orders: 87, sales: 26100, avg: 300.00, growth: 4.2, trend: 'positive' }
+                ],
+                year: [
+                    { year: '2018', orders: 4200, sales: 420000, avg: 100.00, growth: 8.2, trend: 'positive' },
+                    { year: '2019', orders: 4800, sales: 480000, avg: 100.00, growth: 14.3, trend: 'positive' },
+                    { year: '2020', orders: 5100, sales: 510000, avg: 100.00, growth: 6.3, trend: 'positive' },
+                    { year: '2021', orders: 6500, sales: 650000, avg: 100.00, growth: 27.5, trend: 'positive' },
+                    { year: '2022', orders: 8900, sales: 890000, avg: 100.00, growth: 36.9, trend: 'positive' },
+                    { year: '2023', orders: 2500, sales: 250000, avg: 100.00, growth: 18.2, trend: 'positive' }
+                ]
+            }
+        };
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Monthly Sales Line Chart
+            const monthlySalesCtx = document.getElementById('monthly-sales-chart').getContext('2d');
+            const monthlySalesChart = new Chart(monthlySalesCtx, {
+                type: 'line',
+                data: salesData.monthly,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Country Sales Bar Chart
+            const countrySalesCtx = document.getElementById('country-sales-chart').getContext('2d');
+            const countrySalesChart = new Chart(countrySalesCtx, {
+                type: 'bar',
+                data: {
+                    labels: salesData.country.labels,
+                    datasets: [{
+                        label: 'Sales by Country',
+                        data: salesData.country.data,
+                        backgroundColor: salesData.country.colors,
+                        borderColor: salesData.country.colors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // City Sales Doughnut Chart
+            const citySalesCtx = document.getElementById('city-sales-chart').getContext('2d');
+            const citySalesChart = new Chart(citySalesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: salesData.city.labels,
+                    datasets: [{
+                        data: salesData.city.data,
+                        backgroundColor: salesData.city.colors,
+                        borderColor: salesData.city.colors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Yearly Comparison Bar Chart
+            const yearlyComparisonCtx = document.getElementById('yearly-comparison-chart').getContext('2d');
+            const yearlyComparisonChart = new Chart(yearlyComparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: salesData.yearly.labels,
+                    datasets: [{
+                        label: 'Yearly Sales',
+                        data: salesData.yearly.data,
+                        backgroundColor: salesData.yearly.colors,
+                        borderColor: salesData.yearly.colors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Populate tables
+            populateTable('country');
+            populateTable('city');
+            populateTable('product');
+            populateTable('year');
+
+            // Tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tables
+                    document.querySelectorAll('[id$="-table"]').forEach(table => {
+                        table.style.display = 'none';
+                    });
+                    
+                    // Show selected table
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-table`).style.display = 'block';
+                });
+            });
+
+            // Filter functionality
+            document.getElementById('apply-filters').addEventListener('click', function() {
+                const timePeriod = document.getElementById('time-period').value;
+                const region = document.getElementById('region').value;
+                
+                // In a real app, you would fetch new data based on filters
+                // For this demo, we'll just simulate some changes
+                simulateFilterChanges(timePeriod, region);
+                
+                // Show loading effect
+                const button = this;
+                const originalText = button.textContent;
+                button.textContent = 'Applying...';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 1000);
+            });
+
+            // Hide date range by default when not in custom mode
+            document.getElementById('time-period').addEventListener('change', function() {
+                const dateRange = document.getElementById('date-range');
+                if (this.value === 'custom') {
+                    dateRange.style.display = 'flex';
+                } else {
+                    dateRange.style.display = 'none';
+                }
+            });
+
+            // Initialize with date range hidden
+            document.getElementById('date-range').style.display = 'none';
+        });
+
+        // Function to populate tables
+        function populateTable(type) {
+            const tableBody = document.getElementById(`${type}-data`);
+            tableBody.innerHTML = '';
+            
+            salesData.tables[type].forEach(item => {
+                const row = document.createElement('tr');
+                
+                for (const key in item) {
+                    if (key === 'trend') continue;
+                    
+                    const cell = document.createElement('td');
+                    
+                    if (key === 'sales') {
+                        cell.textContent = '$' + item[key].toLocaleString();
+                    } else if (key === 'avg' || key === 'avg_order') {
+                        cell.textContent = '$' + item[key].toFixed(2);
+                    } else if (key === 'growth') {
+                        const trendClass = item.trend === 'positive' ? 'positive' : 'negative';
+                        const symbol = item.trend === 'positive' ? '↑' : '↓';
+                        cell.innerHTML = `<span class="${trendClass}">${symbol} ${Math.abs(item[key])}%</span>`;
+                    } else {
+                        cell.textContent = item[key];
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to simulate filter changes
+        function simulateFilterChanges(timePeriod, region) {
+            // Update summary cards with random variations
+            const totalSales = 248570 + Math.floor(Math.random() * 20000) - 10000;
+            document.getElementById('total-sales').textContent = '$' + totalSales.toLocaleString();
+            
+            const totalOrders = 1842 + Math.floor(Math.random() * 200) - 100;
+            document.getElementById('total-orders').textContent = totalOrders.toLocaleString();
+            
+            const avgOrder = 135 + Math.floor(Math.random() * 20) - 10;
+            document.getElementById('avg-order').textContent = '$' + avgOrder.toFixed(0);
+            
+            const conversionRate = 3.2 + (Math.random() * 0.4) - 0.2;
+            document.getElementById('conversion-rate').textContent = conversionRate.toFixed(1) + '%';
+            
+            // Update growth indicators
+            const salesGrowth = 12.5 + (Math.random() * 5) - 2.5;
+            document.getElementById('sales-growth').textContent = salesGrowth.toFixed(1);
+            
+            const ordersGrowth = 8.3 + (Math.random() * 3) - 1.5;
+            document.getElementById('orders-growth').textContent = ordersGrowth.toFixed(1);
+            
+            const aovGrowth = 3.9 + (Math.random() * 2) - 1;
+            document.getElementById('aov-growth').textContent = aovGrowth.toFixed(1);
+            
+            const conversionChange = 0.4 + (Math.random() * 0.3) - 0.15;
+            document.getElementById('conversion-change').textContent = conversionChange.toFixed(1);
+            
+            // Update growth indicator classes based on value
+            document.querySelectorAll('.change').forEach(el => {
+                const value = parseFloat(el.querySelector('span').textContent);
+                if (value >= 0) {
+                    el.className = 'change positive';
+                } else {
+                    el.className = 'change negative';
+                }
+            });
+            
+            // Show which filters were applied
+            alert(`Filters applied:\nTime Period: ${document.getElementById('time-period').options[document.getElementById('time-period').selectedIndex].text}\nRegion: ${region === 'all' ? 'All Regions' : document.getElementById('region').options[document.getElementById('region').selectedIndex].text}`);
+        }
+    </script>
+</body>
+</html>
