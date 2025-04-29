@@ -32,6 +32,9 @@
             color: white;
             padding: 20px 0;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .header-container {
@@ -43,6 +46,7 @@
         .logo {
             font-size: 24px;
             font-weight: bold;
+            cursor: pointer;
         }
         
         .logo span {
@@ -56,6 +60,7 @@
         
         nav ul li {
             margin-left: 20px;
+            position: relative;
         }
         
         nav ul li a {
@@ -63,10 +68,18 @@
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
         
         nav ul li a:hover {
             color: #3498db;
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        nav ul li a.active {
+            background-color: #3498db;
+            color: white;
         }
         
         /* Dashboard Controls */
@@ -100,6 +113,11 @@
             border: 1px solid #ddd;
             background-color: white;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        select:hover, button:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         button {
@@ -111,6 +129,11 @@
         
         button:hover {
             background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         .date-range {
@@ -124,6 +147,11 @@
             padding: 8px;
             border-radius: 5px;
             border: 1px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .date-range input:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         /* Summary Cards */
@@ -139,11 +167,13 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
         }
         
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .card h3 {
@@ -191,6 +221,12 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .chart-container h2 {
@@ -226,6 +262,7 @@
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
+            margin-right: 5px;
         }
         
         .tab:hover {
@@ -284,31 +321,104 @@
             color: white;
             margin-left: 15px;
             text-decoration: none;
+            transition: color 0.3s;
         }
         
         .footer-links a:hover {
+            color: #3498db;
             text-decoration: underline;
         }
+        
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Animation for cards */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header>
         <div class="container header-container">
-            <div class="logo">Sales<span>Insights</span></div>
+            <div class="logo" id="logo">Sales<span>Insights</span></div>
             <nav>
                 <ul>
-                    <li><a href="#" class="active">Dashboard</a></li>
-                    <li><a href="#">Reports</a></li>
-                    <li><a href="#">Products</a></li>
-                    <li><a href="#">Settings</a></li>
+                    <li><a href="#" class="active" id="dashboard-link">Dashboard</a></li>
+                    <li><a href="#" id="reports-link">Reports</a></li>
+                    <li><a href="#" id="products-link">Products</a></li>
+                    <li><a href="#" id="settings-link">Settings</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container">
+    <main class="container" id="main-content">
         <!-- Dashboard Controls -->
         <div class="dashboard-controls">
             <div class="filter-group">
@@ -336,27 +446,30 @@
                     <option value="south_america">South America</option>
                 </select>
             </div>
-            <button id="apply-filters">Apply Filters</button>
+            <button id="apply-filters">
+                <span id="button-text">Apply Filters</span>
+                <span id="button-loader" class="loading" style="display: none;"></span>
+            </button>
         </div>
 
         <!-- Summary Cards -->
         <div class="summary-cards">
-            <div class="card">
+            <div class="card" id="total-sales-card">
                 <h3>Total Sales</h3>
                 <div class="value" id="total-sales">$248,570</div>
                 <div class="change positive">↑ <span id="sales-growth">12.5</span>% from last period</div>
             </div>
-            <div class="card">
+            <div class="card" id="total-orders-card">
                 <h3>Orders</h3>
                 <div class="value" id="total-orders">1,842</div>
                 <div class="change positive">↑ <span id="orders-growth">8.3</span>% from last period</div>
             </div>
-            <div class="card">
+            <div class="card" id="avg-order-card">
                 <h3>Average Order Value</h3>
                 <div class="value" id="avg-order">$135</div>
                 <div class="change positive">↑ <span id="aov-growth">3.9</span>% from last period</div>
             </div>
-            <div class="card">
+            <div class="card" id="conversion-rate-card">
                 <h3>Conversion Rate</h3>
                 <div class="value" id="conversion-rate">3.2%</div>
                 <div class="change negative">↓ <span id="conversion-change">0.4</span>% from last period</div>
@@ -484,113 +597,611 @@
     </footer>
 
     <script>
-        // Sample data for the dashboard
+        // Global chart variables
+        let monthlySalesChart, countrySalesChart, citySalesChart, yearlyComparisonChart;
+        
+        // Sample data for the dashboard with different time periods
         const salesData = {
-            monthly: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [
-                    {
-                        label: '2022',
-                        data: [65000, 69000, 72000, 68000, 71000, 75000, 78000, 82000, 79000, 85000, 90000, 95000],
-                        borderColor: 'rgba(52, 152, 219, 0.8)',
-                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: '2023',
-                        data: [72150, 81230, 95190, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        borderColor: 'rgba(46, 204, 113, 0.8)',
-                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                        tension: 0.4,
-                        fill: true
-                    }
-                ]
+            // 7 days data
+            '7': {
+                monthly: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                    datasets: [
+                        {
+                            label: 'Current Week',
+                            data: [12000, 15000, 18000, 14000, 16000, 19000, 22000],
+                            borderColor: 'rgba(52, 152, 219, 0.8)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Previous Week',
+                            data: [11000, 13000, 15000, 12000, 14000, 17000, 20000],
+                            borderColor: 'rgba(46, 204, 113, 0.8)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                country: {
+                    labels: ['USA', 'UK', 'Germany', 'Canada', 'Australia'],
+                    data: [32450, 12720, 9120, 6850, 4430],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)'
+                    ]
+                },
+                city: {
+                    labels: ['New York', 'London', 'Berlin', 'Toronto', 'Sydney'],
+                    data: [22450, 9720, 6120, 4850, 3430],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)'
+                    ]
+                },
+                yearly: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    data: [42000, 48000, 51000, 65000, 89000, 25000],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                tables: {
+                    country: [
+                        { country: 'United States', orders: 142, sales: 32450, avg: 228.52, growth: 15.2, trend: 'positive' },
+                        { country: 'United Kingdom', orders: 62, sales: 12720, avg: 205.16, growth: 8.7, trend: 'positive' },
+                        { country: 'Germany', orders: 47, sales: 9120, avg: 194.04, growth: 5.3, trend: 'positive' },
+                        { country: 'Canada', orders: 36, sales: 6850, avg: 190.28, growth: 12.1, trend: 'positive' },
+                        { country: 'Australia', orders: 23, sales: 4430, avg: 192.61, growth: -2.4, trend: 'negative' }
+                    ],
+                    city: [
+                        { city: 'New York', orders: 92, sales: 22450, avg: 244.02, growth: 18.2, trend: 'positive' },
+                        { city: 'London', orders: 45, sales: 9720, avg: 216.00, growth: 9.7, trend: 'positive' },
+                        { city: 'Berlin', orders: 28, sales: 6120, avg: 218.57, growth: 6.3, trend: 'positive' },
+                        { city: 'Toronto', orders: 18, sales: 4850, avg: 269.44, growth: 13.1, trend: 'positive' },
+                        { city: 'Sydney', orders: 15, sales: 3430, avg: 228.67, growth: -1.4, trend: 'negative' }
+                    ],
+                    product: [
+                        { product: 'Laptop Pro', orders: 42, sales: 18400, avg: 438.10, growth: 22.1, trend: 'positive' },
+                        { product: 'Smartphone X', orders: 62, sales: 11200, avg: 180.65, growth: 15.7, trend: 'positive' },
+                        { product: 'Wireless Headphones', orders: 37, sales: 8050, avg: 217.57, growth: 8.3, trend: 'positive' },
+                        { product: 'Smart Watch', orders: 28, sales: 7600, avg: 271.43, growth: 12.6, trend: 'positive' },
+                        { product: 'Tablet Lite', orders: 16, sales: 3400, avg: 212.50, growth: -3.4, trend: 'negative' }
+                    ],
+                    year: [
+                        { year: '2018', orders: 420, sales: 42000, avg: 100.00, growth: 8.2, trend: 'positive' },
+                        { year: '2019', orders: 480, sales: 48000, avg: 100.00, growth: 14.3, trend: 'positive' },
+                        { year: '2020', orders: 510, sales: 51000, avg: 100.00, growth: 6.3, trend: 'positive' },
+                        { year: '2021', orders: 650, sales: 65000, avg: 100.00, growth: 27.5, trend: 'positive' },
+                        { year: '2022', orders: 890, sales: 89000, avg: 100.00, growth: 36.9, trend: 'positive' },
+                        { year: '2023', orders: 250, sales: 25000, avg: 100.00, growth: 18.2, trend: 'positive' }
+                    ]
+                },
+                summary: {
+                    totalSales: 67570,
+                    totalOrders: 342,
+                    avgOrder: 197.57,
+                    conversionRate: 3.5,
+                    salesGrowth: 12.5,
+                    ordersGrowth: 8.3,
+                    aovGrowth: 3.9,
+                    conversionChange: 0.5
+                }
             },
-            country: {
-                labels: ['USA', 'UK', 'Germany', 'Canada', 'Australia', 'Japan', 'France'],
-                data: [112450, 48720, 35120, 19850, 15430, 11230, 10560],
-                colors: [
-                    'rgba(52, 152, 219, 0.7)',
-                    'rgba(155, 89, 182, 0.7)',
-                    'rgba(41, 128, 185, 0.7)',
-                    'rgba(39, 174, 96, 0.7)',
-                    'rgba(243, 156, 18, 0.7)',
-                    'rgba(231, 76, 60, 0.7)',
-                    'rgba(189, 195, 199, 0.7)'
-                ]
+            // 30 days data
+            '30': {
+                monthly: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [
+                        {
+                            label: 'Current Month',
+                            data: [65000, 69000, 72000, 78000],
+                            borderColor: 'rgba(52, 152, 219, 0.8)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Previous Month',
+                            data: [62000, 65000, 68000, 71000],
+                            borderColor: 'rgba(46, 204, 113, 0.8)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                country: {
+                    labels: ['USA', 'UK', 'Germany', 'Canada', 'Australia', 'Japan'],
+                    data: [52450, 22720, 15120, 9850, 7430, 5230],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                city: {
+                    labels: ['New York', 'London', 'Berlin', 'Toronto', 'Sydney', 'Tokyo'],
+                    data: [38450, 18210, 10120, 7850, 6430, 5230],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                yearly: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    data: [120000, 140000, 160000, 210000, 290000, 85000],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                tables: {
+                    country: [
+                        { country: 'United States', orders: 342, sales: 52450, avg: 153.36, growth: 15.2, trend: 'positive' },
+                        { country: 'United Kingdom', orders: 162, sales: 22720, avg: 140.25, growth: 8.7, trend: 'positive' },
+                        { country: 'Germany', orders: 107, sales: 15120, avg: 141.31, growth: 5.3, trend: 'positive' },
+                        { country: 'Canada', orders: 66, sales: 9850, avg: 149.24, growth: 12.1, trend: 'positive' },
+                        { country: 'Australia', orders: 53, sales: 7430, avg: 140.19, growth: -2.4, trend: 'negative' },
+                        { country: 'Japan', orders: 38, sales: 5230, avg: 137.63, growth: 6.8, trend: 'positive' }
+                    ],
+                    city: [
+                        { city: 'New York', orders: 212, sales: 38450, avg: 181.37, growth: 18.2, trend: 'positive' },
+                        { city: 'London', orders: 105, sales: 18210, avg: 173.43, growth: 9.7, trend: 'positive' },
+                        { city: 'Berlin', orders: 68, sales: 10120, avg: 148.82, growth: 6.3, trend: 'positive' },
+                        { city: 'Toronto', orders: 48, sales: 7850, avg: 163.54, growth: 13.1, trend: 'positive' },
+                        { city: 'Sydney', orders: 35, sales: 6430, avg: 183.71, growth: -1.4, trend: 'negative' },
+                        { city: 'Tokyo', orders: 32, sales: 5230, avg: 163.44, growth: 7.8, trend: 'positive' }
+                    ],
+                    product: [
+                        { product: 'Laptop Pro', orders: 142, sales: 28400, avg: 200.00, growth: 22.1, trend: 'positive' },
+                        { product: 'Smartphone X', orders: 212, sales: 21200, avg: 100.00, growth: 15.7, trend: 'positive' },
+                        { product: 'Wireless Headphones', orders: 117, sales: 17550, avg: 150.00, growth: 8.3, trend: 'positive' },
+                        { product: 'Smart Watch', orders: 88, sales: 17600, avg: 200.00, growth: 12.6, trend: 'positive' },
+                        { product: 'Tablet Lite', orders: 66, sales: 9900, avg: 150.00, growth: -3.4, trend: 'negative' },
+                        { product: 'Bluetooth Speaker', orders: 53, sales: 7950, avg: 150.00, growth: 6.8, trend: 'positive' }
+                    ],
+                    year: [
+                        { year: '2018', orders: 1200, sales: 120000, avg: 100.00, growth: 8.2, trend: 'positive' },
+                        { year: '2019', orders: 1400, sales: 140000, avg: 100.00, growth: 14.3, trend: 'positive' },
+                        { year: '2020', orders: 1600, sales: 160000, avg: 100.00, growth: 6.3, trend: 'positive' },
+                        { year: '2021', orders: 2100, sales: 210000, avg: 100.00, growth: 27.5, trend: 'positive' },
+                        { year: '2022', orders: 2900, sales: 290000, avg: 100.00, growth: 36.9, trend: 'positive' },
+                        { year: '2023', orders: 850, sales: 85000, avg: 100.00, growth: 18.2, trend: 'positive' }
+                    ]
+                },
+                summary: {
+                    totalSales: 112450,
+                    totalOrders: 842,
+                    avgOrder: 133.55,
+                    conversionRate: 3.2,
+                    salesGrowth: 12.5,
+                    ordersGrowth: 8.3,
+                    aovGrowth: 3.9,
+                    conversionChange: 0.4
+                }
             },
-            city: {
-                labels: ['New York', 'London', 'Berlin', 'Toronto', 'Sydney', 'Tokyo', 'Paris'],
-                data: [78450, 38210, 25120, 12850, 10430, 9230, 8560],
-                colors: [
-                    'rgba(52, 152, 219, 0.7)',
-                    'rgba(155, 89, 182, 0.7)',
-                    'rgba(41, 128, 185, 0.7)',
-                    'rgba(39, 174, 96, 0.7)',
-                    'rgba(243, 156, 18, 0.7)',
-                    'rgba(231, 76, 60, 0.7)',
-                    'rgba(189, 195, 199, 0.7)'
-                ]
+            // 90 days data (default)
+            '90': {
+                monthly: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        {
+                            label: '2022',
+                            data: [65000, 69000, 72000, 68000, 71000, 75000, 78000, 82000, 79000, 85000, 90000, 95000],
+                            borderColor: 'rgba(52, 152, 219, 0.8)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: '2023',
+                            data: [72150, 81230, 95190, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            borderColor: 'rgba(46, 204, 113, 0.8)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                country: {
+                    labels: ['USA', 'UK', 'Germany', 'Canada', 'Australia', 'Japan', 'France'],
+                    data: [112450, 48720, 35120, 19850, 15430, 11230, 10560],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(189, 195, 199, 0.7)'
+                    ]
+                },
+                city: {
+                    labels: ['New York', 'London', 'Berlin', 'Toronto', 'Sydney', 'Tokyo', 'Paris'],
+                    data: [78450, 38210, 25120, 12850, 10430, 9230, 8560],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(189, 195, 199, 0.7)'
+                    ]
+                },
+                yearly: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    data: [420000, 480000, 510000, 650000, 890000, 250000],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                tables: {
+                    country: [
+                        { country: 'United States', orders: 842, sales: 112450, avg: 133.55, growth: 15.2, trend: 'positive' },
+                        { country: 'United Kingdom', orders: 392, sales: 48720, avg: 124.29, growth: 8.7, trend: 'positive' },
+                        { country: 'Germany', orders: 287, sales: 35120, avg: 122.37, growth: 5.3, trend: 'positive' },
+                        { country: 'Canada', orders: 156, sales: 19850, avg: 127.24, growth: 12.1, trend: 'positive' },
+                        { country: 'Australia', orders: 123, sales: 15430, avg: 125.45, growth: -2.4, trend: 'negative' },
+                        { country: 'Japan', orders: 98, sales: 11230, avg: 114.59, growth: 6.8, trend: 'positive' },
+                        { country: 'France', orders: 87, sales: 10560, avg: 121.38, growth: 4.2, trend: 'positive' }
+                    ],
+                    city: [
+                        { city: 'New York', orders: 512, sales: 78450, avg: 153.22, growth: 18.2, trend: 'positive' },
+                        { city: 'London', orders: 245, sales: 38210, avg: 155.96, growth: 9.7, trend: 'positive' },
+                        { city: 'Berlin', orders: 178, sales: 25120, avg: 141.12, growth: 6.3, trend: 'positive' },
+                        { city: 'Toronto', orders: 98, sales: 12850, avg: 131.12, growth: 13.1, trend: 'positive' },
+                        { city: 'Sydney', orders: 85, sales: 10430, avg: 122.71, growth: -1.4, trend: 'negative' },
+                        { city: 'Tokyo', orders: 72, sales: 9230, avg: 128.19, growth: 7.8, trend: 'positive' },
+                        { city: 'Paris', orders: 68, sales: 8560, avg: 125.88, growth: 5.2, trend: 'positive' }
+                    ],
+                    product: [
+                        { product: 'Laptop Pro', orders: 342, sales: 68400, avg: 200.00, growth: 22.1, trend: 'positive' },
+                        { product: 'Smartphone X', orders: 512, sales: 51200, avg: 100.00, growth: 15.7, trend: 'positive' },
+                        { product: 'Wireless Headphones', orders: 287, sales: 43050, avg: 150.00, growth: 8.3, trend: 'positive' },
+                        { product: 'Smart Watch', orders: 198, sales: 39600, avg: 200.00, growth: 12.6, trend: 'positive' },
+                        { product: 'Tablet Lite', orders: 156, sales: 23400, avg: 150.00, growth: -3.4, trend: 'negative' },
+                        { product: 'Bluetooth Speaker', orders: 123, sales: 18450, avg: 150.00, growth: 6.8, trend: 'positive' },
+                        { product: 'Gaming Console', orders: 87, sales: 26100, avg: 300.00, growth: 4.2, trend: 'positive' }
+                    ],
+                    year: [
+                        { year: '2018', orders: 4200, sales: 420000, avg: 100.00, growth: 8.2, trend: 'positive' },
+                        { year: '2019', orders: 4800, sales: 480000, avg: 100.00, growth: 14.3, trend: 'positive' },
+                        { year: '2020', orders: 5100, sales: 510000, avg: 100.00, growth: 6.3, trend: 'positive' },
+                        { year: '2021', orders: 6500, sales: 650000, avg: 100.00, growth: 27.5, trend: 'positive' },
+                        { year: '2022', orders: 8900, sales: 890000, avg: 100.00, growth: 36.9, trend: 'positive' },
+                        { year: '2023', orders: 2500, sales: 250000, avg: 100.00, growth: 18.2, trend: 'positive' }
+                    ]
+                },
+                summary: {
+                    totalSales: 248570,
+                    totalOrders: 1842,
+                    avgOrder: 135,
+                    conversionRate: 3.2,
+                    salesGrowth: 12.5,
+                    ordersGrowth: 8.3,
+                    aovGrowth: 3.9,
+                    conversionChange: 0.4
+                }
             },
-            yearly: {
-                labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
-                data: [420000, 480000, 510000, 650000, 890000, 250000],
-                colors: [
-                    'rgba(52, 152, 219, 0.7)',
-                    'rgba(155, 89, 182, 0.7)',
-                    'rgba(41, 128, 185, 0.7)',
-                    'rgba(39, 174, 96, 0.7)',
-                    'rgba(243, 156, 18, 0.7)',
-                    'rgba(231, 76, 60, 0.7)'
-                ]
+            // 365 days data
+            '365': {
+                monthly: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [
+                        {
+                            label: 'Current Year',
+                            data: [248570, 285430, 312890, 356780],
+                            borderColor: 'rgba(52, 152, 219, 0.8)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Previous Year',
+                            data: [210450, 245320, 275890, 305670],
+                            borderColor: 'rgba(46, 204, 113, 0.8)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                country: {
+                    labels: ['USA', 'UK', 'Germany', 'Canada', 'Australia', 'Japan', 'France', 'Brazil'],
+                    data: [412450, 188720, 135120, 79850, 65430, 51230, 40560, 38520],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(189, 195, 199, 0.7)',
+                        'rgba(26, 188, 156, 0.7)'
+                    ]
+                },
+                city: {
+                    labels: ['New York', 'London', 'Berlin', 'Toronto', 'Sydney', 'Tokyo', 'Paris', 'São Paulo'],
+                    data: [298450, 148210, 95120, 62850, 50430, 40230, 38560, 36520],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(189, 195, 199, 0.7)',
+                        'rgba(26, 188, 156, 0.7)'
+                    ]
+                },
+                yearly: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    data: [820000, 980000, 1010000, 1250000, 1580000, 1203670],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                tables: {
+                    country: [
+                        { country: 'United States', orders: 2842, sales: 412450, avg: 145.11, growth: 15.2, trend: 'positive' },
+                        { country: 'United Kingdom', orders: 1392, sales: 188720, avg: 135.57, growth: 8.7, trend: 'positive' },
+                        { country: 'Germany', orders: 987, sales: 135120, avg: 136.90, growth: 5.3, trend: 'positive' },
+                        { country: 'Canada', orders: 556, sales: 79850, avg: 143.62, growth: 12.1, trend: 'positive' },
+                        { country: 'Australia', orders: 423, sales: 65430, avg: 154.68, growth: -2.4, trend: 'negative' },
+                        { country: 'Japan', orders: 398, sales: 51230, avg: 128.72, growth: 6.8, trend: 'positive' },
+                        { country: 'France', orders: 287, sales: 40560, avg: 141.32, growth: 4.2, trend: 'positive' },
+                        { country: 'Brazil', orders: 265, sales: 38520, avg: 145.36, growth: 3.8, trend: 'positive' }
+                    ],
+                    city: [
+                        { city: 'New York', orders: 1512, sales: 298450, avg: 197.39, growth: 18.2, trend: 'positive' },
+                        { city: 'London', orders: 845, sales: 148210, avg: 175.40, growth: 9.7, trend: 'positive' },
+                        { city: 'Berlin', orders: 578, sales: 95120, avg: 164.57, growth: 6.3, trend: 'positive' },
+                        { city: 'Toronto', orders: 398, sales: 62850, avg: 157.91, growth: 13.1, trend: 'positive' },
+                        { city: 'Sydney', orders: 305, sales: 50430, avg: 165.34, growth: -1.4, trend: 'negative' },
+                        { city: 'Tokyo', orders: 272, sales: 40230, avg: 147.90, growth: 7.8, trend: 'positive' },
+                        { city: 'Paris', orders: 268, sales: 38560, avg: 143.88, growth: 5.2, trend: 'positive' },
+                        { city: 'São Paulo', orders: 245, sales: 36520, avg: 149.06, growth: 3.5, trend: 'positive' }
+                    ],
+                    product: [
+                        { product: 'Laptop Pro', orders: 1342, sales: 268400, avg: 200.00, growth: 22.1, trend: 'positive' },
+                        { product: 'Smartphone X', orders: 1512, sales: 151200, avg: 100.00, growth: 15.7, trend: 'positive' },
+                        { product: 'Wireless Headphones', orders: 987, sales: 148050, avg: 150.00, growth: 8.3, trend: 'positive' },
+                        { product: 'Smart Watch', orders: 898, sales: 179600, avg: 200.00, growth: 12.6, trend: 'positive' },
+                        { product: 'Tablet Lite', orders: 656, sales: 98400, avg: 150.00, growth: -3.4, trend: 'negative' },
+                        { product: 'Bluetooth Speaker', orders: 523, sales: 78450, avg: 150.00, growth: 6.8, trend: 'positive' },
+                        { product: 'Gaming Console', orders: 487, sales: 146100, avg: 300.00, growth: 4.2, trend: 'positive' },
+                        { product: 'Fitness Tracker', orders: 365, sales: 73000, avg: 200.00, growth: 3.8, trend: 'positive' }
+                    ],
+                    year: [
+                        { year: '2018', orders: 8200, sales: 820000, avg: 100.00, growth: 8.2, trend: 'positive' },
+                        { year: '2019', orders: 9800, sales: 980000, avg: 100.00, growth: 14.3, trend: 'positive' },
+                        { year: '2020', orders: 10100, sales: 1010000, avg: 100.00, growth: 6.3, trend: 'positive' },
+                        { year: '2021', orders: 12500, sales: 1250000, avg: 100.00, growth: 27.5, trend: 'positive' },
+                        { year: '2022', orders: 15800, sales: 1580000, avg: 100.00, growth: 36.9, trend: 'positive' },
+                        { year: '2023', orders: 12036, sales: 1203670, avg: 100.00, growth: 18.2, trend: 'positive' }
+                    ]
+                },
+                summary: {
+                    totalSales: 1203670,
+                    totalOrders: 12036,
+                    avgOrder: 100,
+                    conversionRate: 3.8,
+                    salesGrowth: 18.2,
+                    ordersGrowth: 12.3,
+                    aovGrowth: 5.2,
+                    conversionChange: 0.8
+                }
             },
-            tables: {
-                country: [
-                    { country: 'United States', orders: 842, sales: 112450, avg: 133.55, growth: 15.2, trend: 'positive' },
-                    { country: 'United Kingdom', orders: 392, sales: 48720, avg: 124.29, growth: 8.7, trend: 'positive' },
-                    { country: 'Germany', orders: 287, sales: 35120, avg: 122.37, growth: 5.3, trend: 'positive' },
-                    { country: 'Canada', orders: 156, sales: 19850, avg: 127.24, growth: 12.1, trend: 'positive' },
-                    { country: 'Australia', orders: 123, sales: 15430, avg: 125.45, growth: -2.4, trend: 'negative' },
-                    { country: 'Japan', orders: 98, sales: 11230, avg: 114.59, growth: 6.8, trend: 'positive' },
-                    { country: 'France', orders: 87, sales: 10560, avg: 121.38, growth: 4.2, trend: 'positive' }
-                ],
-                city: [
-                    { city: 'New York', orders: 512, sales: 78450, avg: 153.22, growth: 18.2, trend: 'positive' },
-                    { city: 'London', orders: 245, sales: 38210, avg: 155.96, growth: 9.7, trend: 'positive' },
-                    { city: 'Berlin', orders: 178, sales: 25120, avg: 141.12, growth: 6.3, trend: 'positive' },
-                    { city: 'Toronto', orders: 98, sales: 12850, avg: 131.12, growth: 13.1, trend: 'positive' },
-                    { city: 'Sydney', orders: 85, sales: 10430, avg: 122.71, growth: -1.4, trend: 'negative' },
-                    { city: 'Tokyo', orders: 72, sales: 9230, avg: 128.19, growth: 7.8, trend: 'positive' },
-                    { city: 'Paris', orders: 68, sales: 8560, avg: 125.88, growth: 5.2, trend: 'positive' }
-                ],
-                product: [
-                    { product: 'Laptop Pro', orders: 342, sales: 68400, avg: 200.00, growth: 22.1, trend: 'positive' },
-                    { product: 'Smartphone X', orders: 512, sales: 51200, avg: 100.00, growth: 15.7, trend: 'positive' },
-                    { product: 'Wireless Headphones', orders: 287, sales: 43050, avg: 150.00, growth: 8.3, trend: 'positive' },
-                    { product: 'Smart Watch', orders: 198, sales: 39600, avg: 200.00, growth: 12.6, trend: 'positive' },
-                    { product: 'Tablet Lite', orders: 156, sales: 23400, avg: 150.00, growth: -3.4, trend: 'negative' },
-                    { product: 'Bluetooth Speaker', orders: 123, sales: 18450, avg: 150.00, growth: 6.8, trend: 'positive' },
-                    { product: 'Gaming Console', orders: 87, sales: 26100, avg: 300.00, growth: 4.2, trend: 'positive' }
-                ],
-                year: [
-                    { year: '2018', orders: 4200, sales: 420000, avg: 100.00, growth: 8.2, trend: 'positive' },
-                    { year: '2019', orders: 4800, sales: 480000, avg: 100.00, growth: 14.3, trend: 'positive' },
-                    { year: '2020', orders: 5100, sales: 510000, avg: 100.00, growth: 6.3, trend: 'positive' },
-                    { year: '2021', orders: 6500, sales: 650000, avg: 100.00, growth: 27.5, trend: 'positive' },
-                    { year: '2022', orders: 8900, sales: 890000, avg: 100.00, growth: 36.9, trend: 'positive' },
-                    { year: '2023', orders: 2500, sales: 250000, avg: 100.00, growth: 18.2, trend: 'positive' }
-                ]
+            // Custom data (will be generated based on date range)
+            'custom': {
+                monthly: {
+                    labels: ['Custom Period 1', 'Custom Period 2', 'Custom Period 3'],
+                    datasets: [
+                        {
+                            label: 'Selected Period',
+                            data: [45000, 52000, 48000],
+                            borderColor: 'rgba(52, 152, 219, 0.8)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Previous Period',
+                            data: [42000, 48000, 45000],
+                            borderColor: 'rgba(46, 204, 113, 0.8)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                country: {
+                    labels: ['USA', 'UK', 'Germany', 'Canada'],
+                    data: [32450, 14720, 10120, 7850],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)'
+                    ]
+                },
+                city: {
+                    labels: ['New York', 'London', 'Berlin', 'Toronto'],
+                    data: [22450, 9720, 6120, 4850],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)'
+                    ]
+                },
+                yearly: {
+                    labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    data: [220000, 240000, 260000, 325000, 445000, 125000],
+                    colors: [
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(41, 128, 185, 0.7)',
+                        'rgba(39, 174, 96, 0.7)',
+                        'rgba(243, 156, 18, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ]
+                },
+                tables: {
+                    country: [
+                        { country: 'United States', orders: 342, sales: 32450, avg: 94.88, growth: 15.2, trend: 'positive' },
+                        { country: 'United Kingdom', orders: 162, sales: 14720, avg: 90.86, growth: 8.7, trend: 'positive' },
+                        { country: 'Germany', orders: 107, sales: 10120, avg: 94.58, growth: 5.3, trend: 'positive' },
+                        { country: 'Canada', orders: 66, sales: 7850, avg: 118.94, growth: 12.1, trend: 'positive' }
+                    ],
+                    city: [
+                        { city: 'New York', orders: 212, sales: 22450, avg: 105.90, growth: 18.2, trend: 'positive' },
+                        { city: 'London', orders: 105, sales: 9720, avg: 92.57, growth: 9.7, trend: 'positive' },
+                        { city: 'Berlin', orders: 68, sales: 6120, avg: 90.00, growth: 6.3, trend: 'positive' },
+                        { city: 'Toronto', orders: 48, sales: 4850, avg: 101.04, growth: 13.1, trend: 'positive' }
+                    ],
+                    product: [
+                        { product: 'Laptop Pro', orders: 142, sales: 28400, avg: 200.00, growth: 22.1, trend: 'positive' },
+                        { product: 'Smartphone X', orders: 112, sales: 11200, avg: 100.00, growth: 15.7, trend: 'positive' },
+                        { product: 'Wireless Headphones', orders: 87, sales: 13050, avg: 150.00, growth: 8.3, trend: 'positive' },
+                        { product: 'Smart Watch', orders: 68, sales: 13600, avg: 200.00, growth: 12.6, trend: 'positive' }
+                    ],
+                    year: [
+                        { year: '2018', orders: 2200, sales: 220000, avg: 100.00, growth: 8.2, trend: 'positive' },
+                        { year: '2019', orders: 2400, sales: 240000, avg: 100.00, growth: 14.3, trend: 'positive' },
+                        { year: '2020', orders: 2600, sales: 260000, avg: 100.00, growth: 6.3, trend: 'positive' },
+                        { year: '2021', orders: 3250, sales: 325000, avg: 100.00, growth: 27.5, trend: 'positive' },
+                        { year: '2022', orders: 4450, sales: 445000, avg: 100.00, growth: 36.9, trend: 'positive' },
+                        { year: '2023', orders: 1250, sales: 125000, avg: 100.00, growth: 18.2, trend: 'positive' }
+                    ]
+                },
+                summary: {
+                    totalSales: 65120,
+                    totalOrders: 342,
+                    avgOrder: 190.41,
+                    conversionRate: 3.5,
+                    salesGrowth: 12.5,
+                    ordersGrowth: 8.3,
+                    aovGrowth: 3.9,
+                    conversionChange: 0.5
+                }
             }
         };
 
         // Initialize charts
         document.addEventListener('DOMContentLoaded', function() {
+            // Create charts with default data (90 days)
+            createCharts('90');
+            
+            // Populate tables with default data
+            populateTable('country');
+            populateTable('city');
+            populateTable('product');
+            populateTable('year');
+
+            // Tab functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tables
+                    document.querySelectorAll('[id$="-table"]').forEach(table => {
+                        table.style.display = 'none';
+                    });
+                    
+                    // Show selected table
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-table`).style.display = 'block';
+                });
+            });
+
+            // Filter functionality
+            document.getElementById('apply-filters').addEventListener('click', function() {
+                applyFilters();
+            });
+
+            // Time period change handler
+            document.getElementById('time-period').addEventListener('change', function() {
+                const dateRange = document.getElementById('date-range');
+                if (this.value === 'custom') {
+                    dateRange.style.display = 'flex';
+                } else {
+                    dateRange.style.display = 'none';
+                    // Apply filters immediately when switching to predefined periods
+                    applyFilters();
+                }
+            });
+
+            // Initialize with date range hidden
+            document.getElementById('date-range').style.display = 'none';
+
+            // Navigation functionality
+            setupNavigation();
+
+            // Add click effects to cards
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // Add a temporary active class for visual feedback
+                    this.classList.add('card-active');
+                    setTimeout(() => {
+                        this.classList.remove('card-active');
+                    }, 300);
+                    
+                    // In a real app, you might want to do something when a card is clicked
+                    console.log(`Card clicked: ${this.querySelector('h3').textContent}`);
+                });
+            });
+        });
+
+        // Function to create all charts with given time period data
+        function createCharts(timePeriod) {
+            const data = salesData[timePeriod];
+            
             // Monthly Sales Line Chart
             const monthlySalesCtx = document.getElementById('monthly-sales-chart').getContext('2d');
-            const monthlySalesChart = new Chart(monthlySalesCtx, {
+            if (monthlySalesChart) monthlySalesChart.destroy();
+            monthlySalesChart = new Chart(monthlySalesCtx, {
                 type: 'line',
-                data: salesData.monthly,
+                data: data.monthly,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -621,15 +1232,16 @@
 
             // Country Sales Bar Chart
             const countrySalesCtx = document.getElementById('country-sales-chart').getContext('2d');
-            const countrySalesChart = new Chart(countrySalesCtx, {
+            if (countrySalesChart) countrySalesChart.destroy();
+            countrySalesChart = new Chart(countrySalesCtx, {
                 type: 'bar',
                 data: {
-                    labels: salesData.country.labels,
+                    labels: data.country.labels,
                     datasets: [{
                         label: 'Sales by Country',
-                        data: salesData.country.data,
-                        backgroundColor: salesData.country.colors,
-                        borderColor: salesData.country.colors.map(color => color.replace('0.7', '1')),
+                        data: data.country.data,
+                        backgroundColor: data.country.colors,
+                        borderColor: data.country.colors.map(color => color.replace('0.7', '1')),
                         borderWidth: 1
                     }]
                 },
@@ -663,14 +1275,15 @@
 
             // City Sales Doughnut Chart
             const citySalesCtx = document.getElementById('city-sales-chart').getContext('2d');
-            const citySalesChart = new Chart(citySalesCtx, {
+            if (citySalesChart) citySalesChart.destroy();
+            citySalesChart = new Chart(citySalesCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: salesData.city.labels,
+                    labels: data.city.labels,
                     datasets: [{
-                        data: salesData.city.data,
-                        backgroundColor: salesData.city.colors,
-                        borderColor: salesData.city.colors.map(color => color.replace('0.7', '1')),
+                        data: data.city.data,
+                        backgroundColor: data.city.colors,
+                        borderColor: data.city.colors.map(color => color.replace('0.7', '1')),
                         borderWidth: 1
                     }]
                 },
@@ -698,15 +1311,16 @@
 
             // Yearly Comparison Bar Chart
             const yearlyComparisonCtx = document.getElementById('yearly-comparison-chart').getContext('2d');
-            const yearlyComparisonChart = new Chart(yearlyComparisonCtx, {
+            if (yearlyComparisonChart) yearlyComparisonChart.destroy();
+            yearlyComparisonChart = new Chart(yearlyComparisonCtx, {
                 type: 'bar',
                 data: {
-                    labels: salesData.yearly.labels,
+                    labels: data.yearly.labels,
                     datasets: [{
                         label: 'Yearly Sales',
-                        data: salesData.yearly.data,
-                        backgroundColor: salesData.yearly.colors,
-                        borderColor: salesData.yearly.colors.map(color => color.replace('0.7', '1')),
+                        data: data.yearly.data,
+                        backgroundColor: data.yearly.colors,
+                        borderColor: data.yearly.colors.map(color => color.replace('0.7', '1')),
                         borderWidth: 1
                     }]
                 },
@@ -737,73 +1351,16 @@
                     }
                 }
             });
-
-            // Populate tables
-            populateTable('country');
-            populateTable('city');
-            populateTable('product');
-            populateTable('year');
-
-            // Tab functionality
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    // Hide all tables
-                    document.querySelectorAll('[id$="-table"]').forEach(table => {
-                        table.style.display = 'none';
-                    });
-                    
-                    // Show selected table
-                    const tabName = this.getAttribute('data-tab');
-                    document.getElementById(`${tabName}-table`).style.display = 'block';
-                });
-            });
-
-            // Filter functionality
-            document.getElementById('apply-filters').addEventListener('click', function() {
-                const timePeriod = document.getElementById('time-period').value;
-                const region = document.getElementById('region').value;
-                
-                // In a real app, you would fetch new data based on filters
-                // For this demo, we'll just simulate some changes
-                simulateFilterChanges(timePeriod, region);
-                
-                // Show loading effect
-                const button = this;
-                const originalText = button.textContent;
-                button.textContent = 'Applying...';
-                button.disabled = true;
-                
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 1000);
-            });
-
-            // Hide date range by default when not in custom mode
-            document.getElementById('time-period').addEventListener('change', function() {
-                const dateRange = document.getElementById('date-range');
-                if (this.value === 'custom') {
-                    dateRange.style.display = 'flex';
-                } else {
-                    dateRange.style.display = 'none';
-                }
-            });
-
-            // Initialize with date range hidden
-            document.getElementById('date-range').style.display = 'none';
-        });
+        }
 
         // Function to populate tables
         function populateTable(type) {
+            const timePeriod = document.getElementById('time-period').value;
+            const data = salesData[timePeriod].tables[type];
             const tableBody = document.getElementById(`${type}-data`);
             tableBody.innerHTML = '';
             
-            salesData.tables[type].forEach(item => {
+            data.forEach(item => {
                 const row = document.createElement('tr');
                 
                 for (const key in item) {
@@ -830,46 +1387,145 @@
             });
         }
 
-        // Function to simulate filter changes
-        function simulateFilterChanges(timePeriod, region) {
-            // Update summary cards with random variations
-            const totalSales = 248570 + Math.floor(Math.random() * 20000) - 10000;
-            document.getElementById('total-sales').textContent = '$' + totalSales.toLocaleString();
+        // Function to apply filters and update dashboard
+        function applyFilters() {
+            const timePeriod = document.getElementById('time-period').value;
+            const region = document.getElementById('region').value;
             
-            const totalOrders = 1842 + Math.floor(Math.random() * 200) - 100;
-            document.getElementById('total-orders').textContent = totalOrders.toLocaleString();
+            // Show loading effect
+            const button = document.getElementById('apply-filters');
+            const buttonText = document.getElementById('button-text');
+            const buttonLoader = document.getElementById('button-loader');
             
-            const avgOrder = 135 + Math.floor(Math.random() * 20) - 10;
-            document.getElementById('avg-order').textContent = '$' + avgOrder.toFixed(0);
+            buttonText.textContent = 'Applying...';
+            buttonLoader.style.display = 'inline-block';
+            button.disabled = true;
             
-            const conversionRate = 3.2 + (Math.random() * 0.4) - 0.2;
-            document.getElementById('conversion-rate').textContent = conversionRate.toFixed(1) + '%';
-            
-            // Update growth indicators
-            const salesGrowth = 12.5 + (Math.random() * 5) - 2.5;
-            document.getElementById('sales-growth').textContent = salesGrowth.toFixed(1);
-            
-            const ordersGrowth = 8.3 + (Math.random() * 3) - 1.5;
-            document.getElementById('orders-growth').textContent = ordersGrowth.toFixed(1);
-            
-            const aovGrowth = 3.9 + (Math.random() * 2) - 1;
-            document.getElementById('aov-growth').textContent = aovGrowth.toFixed(1);
-            
-            const conversionChange = 0.4 + (Math.random() * 0.3) - 0.15;
-            document.getElementById('conversion-change').textContent = conversionChange.toFixed(1);
-            
-            // Update growth indicator classes based on value
-            document.querySelectorAll('.change').forEach(el => {
-                const value = parseFloat(el.querySelector('span').textContent);
-                if (value >= 0) {
-                    el.className = 'change positive';
-                } else {
-                    el.className = 'change negative';
-                }
+            // Simulate API call delay
+            setTimeout(() => {
+                // Update charts with new data
+                createCharts(timePeriod);
+                
+                // Update tables with new data
+                populateTable('country');
+                populateTable('city');
+                populateTable('product');
+                populateTable('year');
+                
+                // Update summary cards
+                const summaryData = salesData[timePeriod].summary;
+                document.getElementById('total-sales').textContent = '$' + summaryData.totalSales.toLocaleString();
+                document.getElementById('total-orders').textContent = summaryData.totalOrders.toLocaleString();
+                document.getElementById('avg-order').textContent = '$' + summaryData.avgOrder.toFixed(timePeriod === '365' ? 0 : 2);
+                document.getElementById('conversion-rate').textContent = summaryData.conversionRate.toFixed(1) + '%';
+                
+                document.getElementById('sales-growth').textContent = summaryData.salesGrowth.toFixed(1);
+                document.getElementById('orders-growth').textContent = summaryData.ordersGrowth.toFixed(1);
+                document.getElementById('aov-growth').textContent = summaryData.aovGrowth.toFixed(1);
+                document.getElementById('conversion-change').textContent = summaryData.conversionChange.toFixed(1);
+                
+                // Update growth indicator classes based on value
+                document.querySelectorAll('.change').forEach(el => {
+                    const value = parseFloat(el.querySelector('span').textContent);
+                    if (value >= 0) {
+                        el.className = 'change positive';
+                    } else {
+                        el.className = 'change negative';
+                    }
+                });
+                
+                // Reset button state
+                buttonText.textContent = 'Apply Filters';
+                buttonLoader.style.display = 'none';
+                button.disabled = false;
+                
+                // Show notification
+                showNotification(`Filters applied: ${document.getElementById('time-period').options[document.getElementById('time-period').selectedIndex].text}, ${region === 'all' ? 'All Regions' : document.getElementById('region').options[document.getElementById('region').selectedIndex].text}`);
+                
+            }, 1000);
+        }
+
+        // Function to setup navigation
+        function setupNavigation() {
+            // Logo click handler
+            document.getElementById('logo').addEventListener('click', function() {
+                showNotification('Returned to dashboard');
+                // In a real app, you might reset all filters or reload the page
             });
             
-            // Show which filters were applied
-            alert(`Filters applied:\nTime Period: ${document.getElementById('time-period').options[document.getElementById('time-period').selectedIndex].text}\nRegion: ${region === 'all' ? 'All Regions' : document.getElementById('region').options[document.getElementById('region').selectedIndex].text}`);
+            // Navigation links
+            document.getElementById('dashboard-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                setActiveNav(this);
+                showNotification('Dashboard loaded');
+                // In a real app, you would load the dashboard content
+            });
+            
+            document.getElementById('reports-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                setActiveNav(this);
+                showNotification('Reports section would load here');
+                // In a real app, you would load the reports content
+            });
+            
+            document.getElementById('products-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                setActiveNav(this);
+                showNotification('Products section would load here');
+                // In a real app, you would load the products content
+            });
+            
+            document.getElementById('settings-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                setActiveNav(this);
+                showNotification('Settings section would load here');
+                // In a real app, you would load the settings content
+            });
+        }
+
+        // Function to set active navigation item
+        function setActiveNav(activeItem) {
+            // Remove active class from all nav items
+            document.querySelectorAll('nav ul li a').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            activeItem.classList.add('active');
+        }
+
+        // Function to show notification
+        function showNotification(message) {
+            // Create notification element if it doesn't exist
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.right = '20px';
+                notification.style.backgroundColor = '#2c3e50';
+                notification.style.color = 'white';
+                notification.style.padding = '15px 25px';
+                notification.style.borderRadius = '5px';
+                notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+                notification.style.zIndex = '1000';
+                notification.style.transform = 'translateY(100px)';
+                notification.style.opacity = '0';
+                notification.style.transition = 'all 0.3s ease';
+                document.body.appendChild(notification);
+            }
+            
+            // Set message and show
+            notification.textContent = message;
+            notification.style.transform = 'translateY(0)';
+            notification.style.opacity = '1';
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateY(100px)';
+                notification.style.opacity = '0';
+            }, 3000);
         }
     </script>
 </body>
