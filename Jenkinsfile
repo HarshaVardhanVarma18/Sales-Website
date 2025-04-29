@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main', url: 'https://github.com/HarshaVardhanVarma18/Sales-Website'
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'chmod +x build.sh'
