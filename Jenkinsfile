@@ -2,29 +2,22 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone') {
+        stage('Clone Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/HarshaVardhanVarma18/Sales-Website.git'
+                git branch: 'main', url: 'https://github.com/HarshaVardhanVarma18/Sales-Website'
             }
         }
 
-        stage('Build Script') {
+        stage('Build') {
             steps {
+                sh 'chmod +x build.sh'
                 sh './build.sh'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("sales-website:latest")
-                }
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker run -d -p 8081:80 sales-website:latest'
+                echo 'Deployment step (can be Docker run or copy)'
             }
         }
     }
