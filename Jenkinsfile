@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/HarshaVardhanVarma18/Sales-Website.git'
+                git branch: 'main', url: 'https://github.com/HarshaVardhanVarma18/Sales-Website.git'
             }
         }
 
@@ -21,9 +21,11 @@ pipeline {
                 }
             }
         }
-    }
 
-    triggers {
-        pollSCM('* * * * *')
+        stage('Deploy') {
+            steps {
+                sh 'docker run -d -p 8081:80 sales-website:latest'
+            }
+        }
     }
 }
